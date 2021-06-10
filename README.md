@@ -56,7 +56,13 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ### Run model with shell (CUDA 11.1)
 - Setup (install, virtualenv)
 ```bash
-
+   # 1. before running install python, virtualenv and cuda 11.1 prerequisites
+   # 2. create virtural environment
+   mkvirtualenv MLOps
+   # 3. activate virtual environment (to find created env run 'workon' without arguments)
+   workon MLOps
+   # 4. install packages
+   pip3 install -r requirements_gpu.txt
 ```
 - Training
 ```bash
@@ -70,8 +76,9 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ### Run tests
 ```bash
 # unit & integration tests
-
-# test coverage
-
-# isort & flake8 compliance
+coverage run -m pytest -vv
+# show coverage
+coverage report -m
+# flake8 PEP8 compliance
+flake8 src --max-line-length=120
 ```
