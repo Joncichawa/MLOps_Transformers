@@ -81,4 +81,8 @@ coverage run -m pytest -vv
 coverage report -m
 # flake8 PEP8 compliance
 flake8 src --max-line-length=120
+# black linting
+black src --check --diff
+# isort linting
+isort src --check
 ```
