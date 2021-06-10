@@ -1,3 +1,7 @@
+# own
+.vscode/
+.pycharm/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -68,7 +72,7 @@ target/
 
 # VS Code
 .vscode/
-
+venv
 # Spyder
 .spyproject/
 

@@ -3,55 +3,86 @@ MLOps_Transformers
 
 Project for the MLOps course at DTU utilizing Transformers library for state-of-the-art NLP from Hugginface.
 
-Project Organization
+## 1. Project Organization
 ------------
 
+    ├── .github                <- Github CI Actions definitions for unit, integration tests and pep8 checks
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
+    ├── README.md              <- The top-level README for developers using this project.
     ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
+    │   ├── processed          <- The final, canonical data sets for modeling.
+    │   └── raw                <- The original, immutable data dump.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    ├── models                 <- Trained and serialized models, model predictions, or model summaries
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── reports                <- Generated analysis as HTML, PDF, LaTeX, etc.
+    │   └── figures            <- Generated graphics and figures to be used in reporting
     │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
+    ├── poetry.lock            <- TODO
+    ├── pyproject.toml         <- TODO
+    ├── requirements_gpu.txt   <- The requirements file for reproducing the analysis environment on GPU
     │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── src                    <- Source code for use in this project.
+        │
+        ├── data               <- Scripts to download or generate data
+        │   └── make_dataset.py
+        │
+        ├── models             <- Scripts to train models and then use trained models to make
+        │                         predictions
+        │
+        ├── tests              <- Unit and Integration tests
+        │
+        └── visualization      <- Scripts to create exploratory and results oriented visualizations
+            └── visualize.py
 
 
---------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+## 2. How to run
+------------
+### Run model with Poetry (CPU only)
+- Setup (install, virtualenv)
+```bash
+
+```
+- Training
+```bash
+    
+```
+- Predict
+```bash
+
+```
+
+### Run model with shell (CUDA 11.1)
+- Setup (install, virtualenv)
+```bash
+   # 1. before running install python, virtualenv and cuda 11.1 prerequisites
+   # 2. create virtural environment
+   mkvirtualenv MLOps
+   # 3. activate virtual environment (to find created env run 'workon' without arguments)
+   workon MLOps
+   # 4. install packages
+   pip3 install -r requirements_gpu.txt
+```
+- Training
+```bash
+    
+```
+- Predict
+```bash
+
+```
+
+### Run tests
+```bash
+# unit & integration tests
+coverage run -m pytest -vv
+# show coverage
+coverage report -m
+# flake8 PEP8 compliance
+flake8 src --max-line-length=120
+# black linting
+black src --check --diff
+# isort linting
+isort src --check
+```
