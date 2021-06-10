@@ -2,13 +2,15 @@
 name = "mlops_transformers"
 version = "0.1.0"
 description = "MLOps course project 1"
-authors = ["Artur Przybysz <s202384@student.dtu.dk, Filip Sawicki s202563@student.dtu.dk, Jonatan Cichawa s200155@student.dtu.dk"]
+authors = ["Artur Przybysz <s202384@student.dtu.dk", "Filip Sawicki s202563@student.dtu.dk", "Jonatan Cichawa s200155@student.dtu.dk"]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
 matplotlib = "^3.4.2"
 poethepoet = "^0.10.0"
 torch = "1.8.1"
+datasets = "^1.8.0"
+transformers = "^4.6.1"
 
 [tool.poetry.dev-dependencies]
 
