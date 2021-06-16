@@ -1,7 +1,6 @@
 import torch
 from transformers import DistilBertModel
 
-from src.data.make_dataset import prepare_loaders
 from src.train_config import HyperParameters
 
 
@@ -24,13 +23,13 @@ class DistillBERTClass(torch.nn.Module):
         return output
 
 
-if __name__ == '__main__':
-    # USAGE EXAMPLE
-    hyper_params = HyperParameters()
-    train_loader, test_loader = prepare_loaders(hyper_params)
-    model = DistillBERTClass(hyper_params)
-    for x in test_loader:
-        ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
-        mask = torch.tensor(x["attention_mask"], dtype=torch.long)
-
-        out = model.forward(ids, mask)
+# if __name__ == '__main__':
+#     # USAGE EXAMPLE
+#     hyper_params = HyperParameters()
+#     train_loader, test_loader = prepare_loaders(hyper_params)
+#     model = DistillBERTClass(hyper_params)
+#     for x in test_loader:
+#         ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
+#         mask = torch.tensor(x["attention_mask"], dtype=torch.long)
+#
+#         out = model.forward(ids, mask)

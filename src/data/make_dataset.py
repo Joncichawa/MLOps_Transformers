@@ -1,9 +1,11 @@
-from typing import Tuple
+from typing import Tuple, List
 
+import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import DistilBertTokenizer
+from transformers import DistilBertTokenizer, BatchEncoding
 
+from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, MODELS_PATH
 from src.train_config import HyperParameters
 
@@ -19,6 +21,24 @@ def prepare_loaders(_hyper_params: HyperParameters) -> Tuple[DataLoader, DataLoa
     _train_loader = prepare_single_loader(_hyper_params, "train", tokenizer)
 
     return _train_loader, _test_loader
+
+
+def predict_loader(texts: List[str], _hyper_params: HyperParameters) -> List[BatchEncoding]:
+    tokenizer = DistilBertTokenizer.from_pretrained(
+        "distilbert-base-uncased", cache_dir=MODELS_PATH
+    )
+
+    token_text_list = list(map(lambda e: tokenizer.encode_plus(e,
+                                                               None,
+                                                               add_special_tokens=True,
+                                                               max_length=_hyper_params.MAX_SENTENCE_LENGTH,
+                                                               pad_to_max_length=True,
+                                                               return_token_type_ids=True,
+                                                               truncation=True,
+                                                               ), texts))
+    # tensors = list(map(lambda e: e, token_text_list))
+    return token_text_list
+    # loader = DataLoader(text_series, batch_size=_hyper_params.BATCH_SIZE, shuffle=False)
 
 
 def prepare_single_loader(_hyper_params: HyperParameters, split: str, tokenizer):
@@ -51,4 +71,12 @@ def prepare_single_loader(_hyper_params: HyperParameters, split: str, tokenizer)
 if __name__ == "__main__":
     # USAGE EXAMPLE
     hyper_params = HyperParameters()
-    train_loader, test_loader = prepare_loaders(hyper_params)
+    texts = ["Paris is a capital of France", "Warsaw is in the center of Poland."]
+    pred_loader = predict_loader(texts, hyper_params)
+    model = DistillBERTClass(hyper_params)
+
+    for x in pred_loader:
+        ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
+        mask = torch.tensor(x["attention_mask"], dtype=torch.long)
+
+        out = model.forward(ids, mask)
