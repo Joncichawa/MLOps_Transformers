@@ -1,12 +1,9 @@
 from typing import Tuple
 
-import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import DistilBertModel  # TODO: Use before DataLoader!
 from transformers import DistilBertTokenizer
 
-from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, MODELS_PATH
 from src.train_config import HyperParameters
 
