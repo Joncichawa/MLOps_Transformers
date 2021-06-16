@@ -2,21 +2,32 @@
 name = "mlops_transformers"
 version = "0.1.0"
 description = "MLOps course project 1"
-authors = ["Artur Przybysz <s202384@student.dtu.dk, Filip Sawicki s202563@student.dtu.dk, Jonatan Cichawa s200155@student.dtu.dk"]
+authors = ["Artur Przybysz <s202384@student.dtu.dk", "Filip Sawicki s202563@student.dtu.dk", "Jonatan Cichawa s200155@student.dtu.dk"]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
 matplotlib = "^3.4.2"
 poethepoet = "^0.10.0"
 torch = "1.8.1"
+datasets = "^1.8.0"
+transformers = "^4.6.1"
 pytest = "6.2.4"
 flake8 = "3.9.2"
 coverage = "5.5"
 black = "^21.5b2"
 isort = "^5.8.0"
+pylint = "^2.8.3"
 
 [tool.poetry.dev-dependencies]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+format = "black src/"
+flake = "flake8 src/"
+sortimports = "isort src/"
+tests = "pytest tests/"
+lint = "pylint --disable=all --enable=similarities src/"
+precommit = ["tests", "sortimports", "format", "lint"]
