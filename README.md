@@ -14,6 +14,8 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
     │   └── raw                <- The original, immutable data dump.
     │
     ├── models                 <- Trained and serialized models, model predictions, or model summaries
+    |
+    ├── experiments            <- Experiment yaml files describing model creation and training in ./models
     │
     ├── reports                <- Generated analysis as HTML, PDF, LaTeX, etc.
     │   └── figures            <- Generated graphics and figures to be used in reporting
@@ -42,11 +44,14 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ### Run model with Poetry (CPU only)
 - Setup (install, virtualenv)
 ```bash
-
+   # install libraries
+   poetry install
+   # run virtual environment
+   poetry shell
 ```
 - Training
 ```bash
-    
+   python -m src.models.main train --config experiment-base.yml
 ```
 - Predict
 ```bash
@@ -66,7 +71,7 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ```
 - Training
 ```bash
-    
+   python -m src.models.main train --config experiment-base.yml   
 ```
 - Predict
 ```bash
