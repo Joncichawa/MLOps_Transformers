@@ -3,29 +3,11 @@ from typing import Tuple
 import torch
 from datasets import load_dataset
 
+from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, MODELS_PATH
 from src.train_config import HyperParameters
 from torch.utils.data import DataLoader
 from transformers import DistilBertTokenizer, DistilBertModel  # TODO: Use before DataLoader!
-
-
-class DistillBERTClass(torch.nn.Module):
-    def __init__(self):
-        super(DistillBERTClass, self).__init__()
-        self.l1 = DistilBertModel.from_pretrained("distilbert-base-uncased")
-        self.pre_classifier = torch.nn.Linear(768, 768)
-        self.dropout = torch.nn.Dropout(0.3)
-        self.out = torch.nn.Linear(768, 14)
-
-    def forward(self, input_ids, attention_mask):
-        output_1 = self.l1(input_ids=input_ids, attention_mask=attention_mask)
-        hidden_state = output_1[0]
-        x = hidden_state[:, 0]
-        x = self.pre_classifier(x)
-        x = torch.nn.ReLU()(x)
-        x = self.dropout(x)
-        output = self.out(x)
-        return output
 
 
 def prepare_loaders(_hyper_params: HyperParameters) -> Tuple[DataLoader, DataLoader]:
@@ -34,8 +16,9 @@ def prepare_loaders(_hyper_params: HyperParameters) -> Tuple[DataLoader, DataLoa
     tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased', cache_dir=MODELS_PATH)
 
     _test_loader = prepare_single_loader(_hyper_params, "test", tokenizer)
+    _train_loader = prepare_single_loader(_hyper_params, "train", tokenizer)
 
-    return _test_loader, _test_loader
+    return _train_loader, _test_loader
 
 
 def prepare_single_loader(_hyper_params: HyperParameters, split: str, tokenizer):
@@ -50,17 +33,16 @@ def prepare_single_loader(_hyper_params: HyperParameters, split: str, tokenizer)
                           batched=True,
                           remove_columns=["content"])
     dataset.set_format(type='torch')
-    dataset.save_to_disk(DATA_PATH / "processed" / f"{split}.pt")
-    loader = DataLoader(dataset, batch_size=_hyper_params.BATCH_SIZE)
+
+    dataset_path = DATA_PATH / "processed" / f"{split}"
+    dataset.save_to_disk(dataset_path)
+
+    loader = DataLoader(dataset, batch_size=_hyper_params.BATCH_SIZE, shuffle=split == "train")
     return loader
 
 
 if __name__ == '__main__':
-    hyper_params = HyperParameters(BATCH_SIZE=32)
+    # USAGE EXAMPLE
+    hyper_params = HyperParameters()
     train_loader, test_loader = prepare_loaders(hyper_params)
-    model = DistillBERTClass()
-    for x in test_loader:
-        ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
-        mask = torch.tensor(x["attention_mask"], dtype=torch.long)
 
-        out = model.forward(ids, mask)
