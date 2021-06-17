@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict
+from typing import Dict, List, Tuple
 
 import torch
 import yaml
@@ -6,11 +6,11 @@ from datasets import load_dataset
 from datasets import logging as logging_ds
 from torch import Tensor
 from torch.utils.data import DataLoader
+from transformers import BatchEncoding, DistilBertTokenizer
 from transformers import logging as logging_tf
-from transformers import DistilBertTokenizer, BatchEncoding
 
 from src.models.distil_bert_classifier import DistillBERTClass
-from src.paths import DATA_PATH, MODELS_PATH, EXPERIMENTS_PATH
+from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH
 
 logging_tf.set_verbosity_error()  # to mute useless logging dump
 logging_ds.set_verbosity_error()
@@ -34,17 +34,29 @@ def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
         "distilbert-base-uncased", cache_dir=MODELS_PATH
     )
 
-    token_text_list = list(map(lambda e: tokenizer.encode_plus(e,
-                                                               None,
-                                                               add_special_tokens=True,
-                                                               max_length=config["model"]["max_sentence_length"],
-                                                               pad_to_max_length=True,
-                                                               truncation=True,
-                                                               ), texts))
+    token_text_list = list(
+        map(
+            lambda e: tokenizer.encode_plus(
+                e,
+                None,
+                add_special_tokens=True,
+                max_length=config["model"]["max_sentence_length"],
+                pad_to_max_length=True,
+                truncation=True,
+            ),
+            texts,
+        )
+    )
 
     def f(e):
-        return {'input_ids': torch.tensor(e.data["input_ids"], dtype=torch.long).unsqueeze(0),
-                'attention_mask': torch.tensor(e.data["attention_mask"], dtype=torch.long).unsqueeze(0)}
+        return {
+            "input_ids": torch.tensor(e.data["input_ids"], dtype=torch.long).unsqueeze(
+                0
+            ),
+            "attention_mask": torch.tensor(
+                e.data["attention_mask"], dtype=torch.long
+            ).unsqueeze(0),
+        }
 
     dataset = list(map(f, token_text_list))
 
@@ -69,8 +81,10 @@ def prepare_single_loader(config: dict, split: str, tokenizer):
     )
 
     def f(e):
-        return {'input_ids': torch.tensor(e["ids"], dtype=torch.long).unsqueeze(0),
-                'attention_mask': torch.tensor(e["mask"], dtype=torch.long).unsqueeze(0)}
+        return {
+            "input_ids": torch.tensor(e["ids"], dtype=torch.long).unsqueeze(0),
+            "attention_mask": torch.tensor(e["mask"], dtype=torch.long).unsqueeze(0),
+        }
 
     dataset = dataset.map(f, batched=True)
 
@@ -85,7 +99,7 @@ def prepare_single_loader(config: dict, split: str, tokenizer):
     return loader
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # USAGE EXAMPLE PREDICT
     config_path = EXPERIMENTS_PATH / "experiment-base.yaml"
     with open(config_path) as f:
@@ -94,13 +108,14 @@ if __name__ == '__main__':
     texts = [
         "If you want to work your glutes when doing the split squat you need to adopt a wider (further forward) stance.",
         "Yeah just as long as your spine is neutral, you're good",
-        "No wonder why my lower back was always in pain when doing this exercice."]
+        "No wonder why my lower back was always in pain when doing this exercice.",
+    ]
 
     test_loader = predict_loader(texts, config)
     model = DistillBERTClass(config)
     for x in test_loader:
-        ids = x['input_ids']
-        mask = x['attention_mask']
+        ids = x["input_ids"]
+        mask = x["attention_mask"]
 
         out = model.forward(ids, mask)
         print(out)

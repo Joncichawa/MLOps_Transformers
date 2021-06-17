@@ -1,6 +1,7 @@
 import torch
-from transformers import DistilBertModel
 import yaml
+from transformers import DistilBertModel
+
 # from src.data.make_dataset import prepare_loaders
 from src.paths import EXPERIMENTS_PATH
 
