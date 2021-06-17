@@ -6,7 +6,7 @@ from datasets import load_dataset
 from datasets import logging as logging_ds
 from torch import Tensor
 from torch.utils.data import DataLoader
-from transformers import BatchEncoding, DistilBertTokenizer
+from transformers import DistilBertTokenizer
 from transformers import logging as logging_tf
 
 from src.models.distil_bert_classifier import DistillBERTClass
@@ -106,7 +106,8 @@ if __name__ == "__main__":
         config = yaml.safe_load(f)
 
     texts = [
-        "If you want to work your glutes when doing the split squat you need to adopt a wider (further forward) stance.",
+        "If you want to work your glutes when doing the \
+        split squat you need to adopt a wider (further forward) stance.",
         "Yeah just as long as your spine is neutral, you're good",
         "No wonder why my lower back was always in pain when doing this exercice.",
     ]

@@ -1,9 +1,5 @@
 import torch
-import yaml
 from transformers import DistilBertModel
-
-# from src.data.make_dataset import prepare_loaders
-from src.paths import EXPERIMENTS_PATH
 
 BERT_OUTPUT = 768
 MODEL_OUTPUT = 14
@@ -30,7 +26,6 @@ class DistillBERTClass(torch.nn.Module):
         x = self.lin_layers(x)
         x = torch.nn.functional.log_softmax(x, dim=1)
         return x
-
 
 # if __name__ == '__main__':
 #     # USAGE EXAMPLE
