@@ -5,7 +5,8 @@ import yaml
 from datasets import load_dataset
 from datasets import logging as logging_ds
 from torch import Tensor
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.dataset import T_co
 from transformers import DistilBertTokenizer
 from transformers import logging as logging_tf
 
@@ -16,17 +17,17 @@ logging_tf.set_verbosity_error()  # to mute useless logging dump
 logging_ds.set_verbosity_error()
 
 
-def prepare_loaders(config: dict) -> Tuple[DataLoader, DataLoader]:
+def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader]:
     # See https://huggingface.co/docs/datasets/loading_datasets.html#cache-directory
     # We don't need to save the dataset in data dir, as caching is handled by huggingface
     tokenizer = DistilBertTokenizer.from_pretrained(
         "distilbert-base-uncased", cache_dir=MODELS_PATH
     )
-
+    print(tokenizer.vocab_size)
     _test_loader = prepare_single_loader(config, "test", tokenizer)
-    _train_loader = prepare_single_loader(config, "train", tokenizer)
+    # _train_loader = prepare_single_loader(config, "train", tokenizer)
 
-    return _train_loader, _test_loader
+    return _test_loader, _test_loader
 
 
 def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
@@ -38,7 +39,6 @@ def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
         map(
             lambda e: tokenizer.encode_plus(
                 e,
-                None,
                 add_special_tokens=True,
                 max_length=config["model"]["max_sentence_length"],
                 pad_to_max_length=True,
@@ -65,34 +65,20 @@ def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
 
 def prepare_single_loader(config: dict, split: str, tokenizer):
     dataset = load_dataset("dbpedia_14", cache_dir=DATA_PATH / "raw", split=split)
-    dataset = dataset.remove_columns(column_names="title")
+    dataset = dataset.remove_columns(column_names=["title"])
     dataset = dataset.map(
         lambda e: tokenizer.encode_plus(
             e["content"],
-            None,
             add_special_tokens=True,
             max_length=config["model"]["max_sentence_length"],
             pad_to_max_length=True,
-            return_token_type_ids=True,
+            return_token_type_ids=False,
             truncation=True,
         ),
-        batched=True,
         remove_columns=["content"],
     )
 
-    def f(e):
-        return {
-            "input_ids": torch.tensor(e["ids"], dtype=torch.long).unsqueeze(0),
-            "attention_mask": torch.tensor(e["mask"], dtype=torch.long).unsqueeze(0),
-        }
-
-    dataset = dataset.map(f, batched=True)
-
-    dataset.set_format(type="torch")
-
-    dataset_path = DATA_PATH / "processed" / f"{split}"
-    dataset.save_to_disk(dataset_path)
-
+    dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
     loader = DataLoader(
         dataset, batch_size=config["model"]["batch_size"], shuffle=split == "train"
     )
@@ -100,23 +86,34 @@ def prepare_single_loader(config: dict, split: str, tokenizer):
 
 
 if __name__ == "__main__":
-    # USAGE EXAMPLE PREDICT
     config_path = EXPERIMENTS_PATH / "experiment-base.yaml"
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    texts = [
-        "If you want to work your glutes when doing the \
-        split squat you need to adopt a wider (further forward) stance.",
-        "Yeah just as long as your spine is neutral, you're good",
-        "No wonder why my lower back was always in pain when doing this exercice.",
-    ]
+    # PREDICT EXAMPLE
+    # texts = [
+    #     "If you want to work your glutes when doing the \
+    #     split squat you need to adopt a wider (further forward) stance.",
+    #     "Yeah just as long as your spine is neutral, you're good",
+    #     "No wonder why my lower back was always in pain when doing this exercice.",
+    # ]
+    #
+    # test_loader = predict_loader(texts, config)
+    # model = DistillBERTClass(config)
+    # for x in test_loader:
+    #     ids = x["input_ids"]
+    #     mask = x["attention_mask"]
+    #
+    #     out = model.forward(ids, mask)
+    #     print(out)
 
-    test_loader = predict_loader(texts, config)
+    # TRAIN LOADERS EXAMPLE
+    device = 'cpu'
+    l1, l2 = prepare_train_loaders(config)
     model = DistillBERTClass(config)
-    for x in test_loader:
-        ids = x["input_ids"]
-        mask = x["attention_mask"]
+    for b in l1:
+        ids = b['input_ids'].to(device, dtype=torch.long)
+        mask = b['attention_mask'].to(device, dtype=torch.long)
+        label = b['label'].to(device, dtype=torch.long)
 
-        out = model.forward(ids, mask)
-        print(out)
+        outputs = model(ids, mask)

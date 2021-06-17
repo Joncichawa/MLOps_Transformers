@@ -8,7 +8,7 @@ MODEL_OUTPUT = 14
 class DistillBERTClass(torch.nn.Module):
     def __init__(self, config: dict):
         super(DistillBERTClass, self).__init__()
-        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased", )
+        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased")
         layers = []
         input_features = BERT_OUTPUT
         for dim in config['model']['layers']:
@@ -20,6 +20,9 @@ class DistillBERTClass(torch.nn.Module):
         self.lin_layers = torch.nn.Sequential(*layers)
 
     def forward(self, input_ids, attention_mask):
+        print(input_ids.shape)
+        print(attention_mask.shape)
+
         output_1 = self.bert_layers(input_ids=input_ids, attention_mask=attention_mask)
         hidden_state = output_1[0]
         x = hidden_state[:, 0]
