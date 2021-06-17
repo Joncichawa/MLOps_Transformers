@@ -1,33 +1,44 @@
 import torch
 from transformers import DistilBertModel
+import yaml
+# from src.data.make_dataset import prepare_loaders
+from src.paths import EXPERIMENTS_PATH
 
-from src.train_config import HyperParameters
+BERT_OUTPUT = 768
+MODEL_OUTPUT = 14
 
 
 class DistillBERTClass(torch.nn.Module):
-    def __init__(self, hyper_params: HyperParameters):
+    def __init__(self, config: dict):
         super(DistillBERTClass, self).__init__()
-        self.l1 = DistilBertModel.from_pretrained("distilbert-base-uncased")
-        self.pre_classifier = torch.nn.Linear(768, hyper_params.HIDDEN_LAYER_SIZE)
-        self.dropout = torch.nn.Dropout(hyper_params.DROPOUT_RATE)
-        self.out = torch.nn.Linear(hyper_params.HIDDEN_LAYER_SIZE, 14)
+        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased", )
+        layers = []
+        input_features = BERT_OUTPUT
+        for dim in config['model']['layers']:
+            layers.append(torch.nn.Linear(input_features, dim))
+            layers.append(torch.nn.ReLU())
+            layers.append(torch.nn.Dropout(config['model']['dropout']))
+            input_features = dim
+        layers.append(torch.nn.Linear(input_features, MODEL_OUTPUT))
+        self.lin_layers = torch.nn.Sequential(*layers)
 
     def forward(self, input_ids, attention_mask):
-        output_1 = self.l1(input_ids=input_ids, attention_mask=attention_mask)
+        output_1 = self.bert_layers(input_ids=input_ids, attention_mask=attention_mask)
         hidden_state = output_1[0]
         x = hidden_state[:, 0]
-        x = self.pre_classifier(x)
-        x = torch.nn.ReLU()(x)
-        x = self.dropout(x)
-        output = self.out(x)
-        return output
+        x = self.lin_layers(x)
+        x = torch.nn.functional.log_softmax(x, dim=1)
+        return x
 
 
 # if __name__ == '__main__':
 #     # USAGE EXAMPLE
-#     hyper_params = HyperParameters()
-#     train_loader, test_loader = prepare_loaders(hyper_params)
-#     model = DistillBERTClass(hyper_params)
+#     config_path = EXPERIMENTS_PATH / "experiment-base.yaml"
+#     with open(config_path) as f:
+#         config = yaml.load(f)
+#
+#     train_loader, test_loader = prepare_loaders(config)
+#     model = DistillBERTClass(config)
 #     for x in test_loader:
 #         ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
 #         mask = torch.tensor(x["attention_mask"], dtype=torch.long)
