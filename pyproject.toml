@@ -27,8 +27,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
 format = "black src/"
-flake = "flake8 src/"
+flake = "flake8 src/ --max-line-length=120"
 sortimports = "isort src/"
 tests = "pytest tests/"
 lint = "pylint --disable=all --enable=similarities src/"
-precommit = ["tests", "sortimports", "format", "lint"]
+precommit = ["tests", "sortimports", "format", "lint", "flake"]
