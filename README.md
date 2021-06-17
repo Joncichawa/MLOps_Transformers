@@ -1,7 +1,7 @@
 MLOps_Transformers
 ==============================
 
-Project for the MLOps course at DTU utilizing Transformers library for state-of-the-art NLP from Hugginface.
+Project for the MLOps course at DTU utilizing Transformers library for state-of-the-art NLP from Hugginface
 
 ## 1. Project Organization
 ------------

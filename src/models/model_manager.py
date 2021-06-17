@@ -75,10 +75,10 @@ class Manager:
                 # Metrics
                 running_loss += loss.item()
                 running_acc += self.measure_acc(output_ps, labels)
-            print(f'========================[{e+1}/{epochs}]========================')
-            print(f'Training Loss: {running_loss / len(self.train)}')
-            print(f'Training Acc: {(running_acc / len(self.train)) * 100}%')
-        print('Training Finished!')
+            self.logger.info(f'========================[{e+1}/{epochs}]========================')
+            self.logger.info(f'Training Loss: {running_loss / len(self.train)}')
+            self.logger.info(f'Training Acc: {(running_acc / len(self.train)) * 100}%')
+        self.logger.info('Training Finished!')
 
     def evaluate(self):
         self._load_internal_dataset()
