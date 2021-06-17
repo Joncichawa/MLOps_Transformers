@@ -32,7 +32,9 @@ class Manager:
         if self.loaded:
             return None
         self.logger.info('Loading training dataset')
-        self.train, self.valid = mkd.prepare_loaders(self.config)
+        # TODO: right now we only have train and test set.
+        #       It would be useful to make a train set sample for validation.
+        self.train, self.valid = mkd.prepare_train_loaders(self.config)
 
     def _load_external_dataset(self, data):
         if self.loaded:
@@ -75,7 +77,7 @@ class Manager:
                 # Metrics
                 running_loss += loss.item()
                 running_acc += self.measure_acc(output_ps, labels)
-            self.logger.info(f'========================[{e+1}/{epochs}]========================')
+            self.logger.info(f'========================[{e + 1}/{epochs}]========================')
             self.logger.info(f'Training Loss: {running_loss / len(self.train)}')
             self.logger.info(f'Training Acc: {(running_acc / len(self.train)) * 100}%')
         self.logger.info('Training Finished!')

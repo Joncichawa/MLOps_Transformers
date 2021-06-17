@@ -5,8 +5,7 @@ import yaml
 from datasets import load_dataset
 from datasets import logging as logging_ds
 from torch import Tensor
-from torch.utils.data import DataLoader, Dataset
-from torch.utils.data.dataset import T_co
+from torch.utils.data import DataLoader
 from transformers import DistilBertTokenizer
 from transformers import logging as logging_tf
 
@@ -23,11 +22,9 @@ def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader]:
     tokenizer = DistilBertTokenizer.from_pretrained(
         "distilbert-base-uncased", cache_dir=MODELS_PATH
     )
-    print(tokenizer.vocab_size)
     _test_loader = prepare_single_loader(config, "test", tokenizer)
-    # _train_loader = prepare_single_loader(config, "train", tokenizer)
-
-    return _test_loader, _test_loader
+    _train_loader = prepare_single_loader(config, "train", tokenizer)
+    return _train_loader, _test_loader
 
 
 def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
@@ -40,7 +37,7 @@ def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
             lambda e: tokenizer.encode_plus(
                 e,
                 add_special_tokens=True,
-                max_length=config["model"]["max_sentence_length"],
+                max_length=config["data"]["max_sentence_length"],
                 pad_to_max_length=True,
                 truncation=True,
             ),
@@ -78,7 +75,7 @@ def prepare_single_loader(config: dict, split: str, tokenizer):
         remove_columns=["content"],
     )
 
-    dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
     loader = DataLoader(
         dataset, batch_size=config["model"]["batch_size"], shuffle=split == "train"
     )
@@ -108,12 +105,12 @@ if __name__ == "__main__":
     #     print(out)
 
     # TRAIN LOADERS EXAMPLE
-    device = 'cpu'
+    device = "cpu"
     l1, l2 = prepare_train_loaders(config)
     model = DistillBERTClass(config)
     for b in l1:
-        ids = b['input_ids'].to(device, dtype=torch.long)
-        mask = b['attention_mask'].to(device, dtype=torch.long)
-        label = b['label'].to(device, dtype=torch.long)
+        ids = b["input_ids"].to(device, dtype=torch.long)
+        mask = b["attention_mask"].to(device, dtype=torch.long)
+        label = b["label"].to(device, dtype=torch.long)
 
         outputs = model(ids, mask)
