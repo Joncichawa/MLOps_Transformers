@@ -1,8 +1,6 @@
 import torch
 from transformers import DistilBertModel
 
-from src.data.make_dataset import prepare_loaders
-
 BERT_OUTPUT = 768
 MODEL_OUTPUT = 14
 
@@ -10,7 +8,7 @@ MODEL_OUTPUT = 14
 class DistillBERTClass(torch.nn.Module):
     def __init__(self, config: dict):
         super(DistillBERTClass, self).__init__()
-        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased")
+        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased", )
         layers = []
         input_features = BERT_OUTPUT
         for dim in config['model']['layers']:
@@ -29,13 +27,16 @@ class DistillBERTClass(torch.nn.Module):
         x = torch.nn.functional.log_softmax(x, dim=1)
         return x
 
-
-if __name__ == '__main__':
-    # USAGE EXAMPLE
-    train_loader, test_loader = prepare_loaders()
-    model = DistillBERTClass()
-    for x in test_loader:
-        ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
-        mask = torch.tensor(x["attention_mask"], dtype=torch.long)
-
-        out = model.forward(ids, mask)
+# if __name__ == '__main__':
+#     # USAGE EXAMPLE
+#     config_path = EXPERIMENTS_PATH / "experiment-base.yaml"
+#     with open(config_path) as f:
+#         config = yaml.load(f)
+#
+#     train_loader, test_loader = prepare_loaders(config)
+#     model = DistillBERTClass(config)
+#     for x in test_loader:
+#         ids = torch.tensor(x["input_ids"], dtype=torch.long).unsqueeze(0)
+#         mask = torch.tensor(x["attention_mask"], dtype=torch.long)
+#
+#         out = model.forward(ids, mask)
