@@ -12,8 +12,8 @@ from transformers import logging as logging_tf
 from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH
 
-logging_tf.set_verbosity_error()  # to mute useless logging dump
-logging_ds.set_verbosity_error()
+# logging_tf.set_verbosity_error()  # to mute useless logging dump
+# logging_ds.set_verbosity_error()
 
 
 def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader]:
