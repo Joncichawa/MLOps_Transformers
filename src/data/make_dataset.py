@@ -1,5 +1,6 @@
 from typing import Dict, List, Tuple
 
+import numpy as np
 import torch
 import yaml
 from datasets import load_dataset
@@ -12,19 +13,26 @@ from transformers import logging as logging_tf
 from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH
 
+
 # logging_tf.set_verbosity_error()  # to mute useless logging dump
 # logging_ds.set_verbosity_error()
 
 
-def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader]:
+def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader, DataLoader]:
     # See https://huggingface.co/docs/datasets/loading_datasets.html#cache-directory
     # We don't need to save the dataset in data dir, as caching is handled by huggingface
     tokenizer = DistilBertTokenizer.from_pretrained(
         "distilbert-base-uncased", cache_dir=MODELS_PATH
     )
-    _test_loader = prepare_single_loader(config, "test", tokenizer)
-    _train_loader = prepare_single_loader(config, "train", tokenizer)
-    return _train_loader, _test_loader
+    train_samples = config["dataset"]["train_samples"]
+    val_samples = config["dataset"]["val_samples"]
+    test_samples = config["dataset"]["test_samples"]
+
+    _train_loader = prepare_single_loader(config, f"train[:{train_samples}]", tokenizer)
+    _val_loader = prepare_single_loader(config, f"train[{train_samples}:{train_samples + val_samples}]", tokenizer)
+    _test_loader = prepare_single_loader(config, f"test[:{test_samples}]", tokenizer)
+
+    return _train_loader, _val_loader, _test_loader
 
 
 def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
@@ -106,9 +114,9 @@ if __name__ == "__main__":
 
     # TRAIN LOADERS EXAMPLE
     device = "cpu"
-    l1, l2 = prepare_train_loaders(config)
+    train_loader, val_loader, test_loader = prepare_train_loaders(config)
     model = DistillBERTClass(config)
-    for b in l1:
+    for b in val_loader:
         ids = b["input_ids"].to(device, dtype=torch.long)
         mask = b["attention_mask"].to(device, dtype=torch.long)
         label = b["label"].to(device, dtype=torch.long)

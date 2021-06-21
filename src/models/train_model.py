@@ -1,7 +1,6 @@
 import torch
 import yaml
 from torch import nn, optim
-import torchmetrics
 
 from src.data.make_dataset import prepare_train_loaders
 from src.models.distil_bert_classifier import DistillBERTClass
@@ -10,10 +9,8 @@ from src.paths import EXPERIMENTS_PATH
 device = 'cpu'  # TODO: GPU
 
 
-# TODO: torch-metrics
-
 def train(config: dict):
-    train_loader, test_loader = prepare_train_loaders(config)
+    train_loader, val_loader, test_loader = prepare_train_loaders(config)
     model = DistillBERTClass(config)
     criterion = nn.NLLLoss()
     model.freeze_pretrained_params()
@@ -23,9 +20,9 @@ def train(config: dict):
     for epoch in range(config["model"]["epochs"]):
         print(f"Epoch: {epoch + 1}")
         running_train_loss = 0
-        for b in train_loader:
+        for t, b in enumerate(train_loader):
             optimizer.zero_grad()
-
+            model.train()
             ids = b['input_ids'].to(device, dtype=torch.long)
             mask = b['attention_mask'].to(device, dtype=torch.long)
             labels = b['label'].to(device, dtype=torch.long)
@@ -36,39 +33,38 @@ def train(config: dict):
             optimizer.step()
 
             running_train_loss += train_loss.item()
-            print(train_loss.item())
-            metrics += compute_metrics(model, running_train_loss, test_loader, criterion)
+            print(f"Batch {t + 1} / {len(train_loader)} loss = ", train_loss.item())
+
+        metrics += compute_metrics(model, running_train_loss, val_loader, criterion)
         print(running_train_loss)
-
-
-def _freeze_DistilBERT_params():
-    """
-    Freezes DistilBERT weights
-    """
-    pass
+    # TODO: evaluate on test loader
 
 
 def compute_metrics(model, train_loss, test_loader, criterion) -> dict:
-    # TODO: Finish, add some metrics
     model.eval()
     with torch.no_grad():
+        all_equals = torch.empty((0, 1))
         running_test_loss = 0
-        for b in test_loader:
+        for t, b in enumerate(test_loader):
             ids = b['input_ids'].to(device, dtype=torch.long)
             mask = b['attention_mask'].to(device, dtype=torch.long)
             labels = b['label'].to(device, dtype=torch.long)
-            log_out = model(ids, mask)
-            test_loss = criterion(log_out, labels)
+            log_ps = model(ids, mask)
+            ps = torch.exp(log_ps)
+            top_p, top_class = ps.topk(k=1)
+            equals = (top_class == labels.view(*top_class.shape)).type(torch.FloatTensor)
+            all_equals = torch.cat([all_equals, equals])
+            test_loss = criterion(log_ps, labels)
 
             running_test_loss += test_loss.item()
-    acc = torchmetrics.functional.accuracy([], [])
 
+    test_accuracy = torch.mean(all_equals)
     metrics = {
         "train_loss": train_loss,
         "test_loss": running_test_loss,
-        "accuracy_test": acc
+        "accuracy_test": test_accuracy
     }
-    model.train()
+    print(metrics)
     return metrics
 
 
