@@ -120,3 +120,4 @@ if __name__ == "__main__":
         label = b["label"].to(device, dtype=torch.long)
 
         outputs = model(ids, mask)
+    
