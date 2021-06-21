@@ -8,7 +8,7 @@ MODEL_OUTPUT = 14
 class DistillBERTClass(torch.nn.Module):
     def __init__(self, config: dict):
         super(DistillBERTClass, self).__init__()
-        self.bert_layers = DistilBertModel.from_pretrained("distilbert-base-uncased")
+        self.pretrained_bert = DistilBertModel.from_pretrained("distilbert-base-uncased")
         layers = []
         input_features = BERT_OUTPUT
         for dim in config['model']['layers']:
@@ -23,12 +23,18 @@ class DistillBERTClass(torch.nn.Module):
         print(input_ids.shape)
         print(attention_mask.shape)
 
-        output_1 = self.bert_layers(input_ids=input_ids, attention_mask=attention_mask)
+        output_1 = self.pretrained_bert(input_ids=input_ids, attention_mask=attention_mask)
         hidden_state = output_1[0]
         x = hidden_state[:, 0]
         x = self.lin_layers(x)
         x = torch.nn.functional.log_softmax(x, dim=1)
         return x
+
+    def freeze_pretrained_params(self):
+        for param in self.pretrained_bert.parameters():
+            param.requires_grad = False
+
+
 
 # if __name__ == '__main__':
 #     # USAGE EXAMPLE

@@ -6,4 +6,4 @@ model:
   max_sentence_length: 512
   epochs: 100
   optimizer: Adam
-  batch_size: 2
+  batch_size: 4

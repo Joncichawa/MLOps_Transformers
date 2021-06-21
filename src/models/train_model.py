@@ -1,6 +1,7 @@
 import torch
 import yaml
 from torch import nn, optim
+import torchmetrics
 
 from src.data.make_dataset import prepare_train_loaders
 from src.models.distil_bert_classifier import DistillBERTClass
@@ -15,9 +16,9 @@ def train(config: dict):
     train_loader, test_loader = prepare_train_loaders(config)
     model = DistillBERTClass(config)
     criterion = nn.NLLLoss()
-    # freeze_LM_params() Do we need to? Maybe set it as a hyperparameter?
+    model.freeze_pretrained_params()
     optimizer = _choose_optimizer(config, model)
-    # metrics = []
+    metrics = []
 
     for epoch in range(config["model"]["epochs"]):
         print(f"Epoch: {epoch + 1}")
@@ -35,8 +36,9 @@ def train(config: dict):
             optimizer.step()
 
             running_train_loss += train_loss.item()
+            print(train_loss.item())
+            metrics += compute_metrics(model, running_train_loss, test_loader, criterion)
         print(running_train_loss)
-        # metrics += compute_metrics(model, train_loss, test_loader, criterion)
 
 
 def _freeze_DistilBERT_params():
@@ -46,20 +48,28 @@ def _freeze_DistilBERT_params():
     pass
 
 
-def compute_metrics(model, train_loss, test_loader, criterion):
-    train_loss
+def compute_metrics(model, train_loss, test_loader, criterion) -> dict:
     # TODO: Finish, add some metrics
     model.eval()
     with torch.no_grad():
-        running_loss = 0
+        running_test_loss = 0
         for b in test_loader:
             ids = b['input_ids'].to(device, dtype=torch.long)
             mask = b['attention_mask'].to(device, dtype=torch.long)
             labels = b['label'].to(device, dtype=torch.long)
             log_out = model(ids, mask)
             test_loss = criterion(log_out, labels)
-            running_loss += test_loss.item()
+
+            running_test_loss += test_loss.item()
+    acc = torchmetrics.functional.accuracy([], [])
+
+    metrics = {
+        "train_loss": train_loss,
+        "test_loss": running_test_loss,
+        "accuracy_test": acc
+    }
     model.train()
+    return metrics
 
 
 def _choose_optimizer(_config: dict, model):
