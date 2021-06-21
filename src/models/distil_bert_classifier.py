@@ -31,8 +31,6 @@ class DistillBERTClass(torch.nn.Module):
         for param in self.pretrained_bert.parameters():
             param.requires_grad = False
 
-
-
 # if __name__ == '__main__':
 #     # USAGE EXAMPLE
 #     config_path = EXPERIMENTS_PATH / "experiment-base.yaml"

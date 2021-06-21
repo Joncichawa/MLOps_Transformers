@@ -1,18 +1,14 @@
 from typing import Dict, List, Tuple
 
-import numpy as np
 import torch
 import yaml
 from datasets import load_dataset
-from datasets import logging as logging_ds
 from torch import Tensor
 from torch.utils.data import DataLoader
 from transformers import DistilBertTokenizer
-from transformers import logging as logging_tf
 
 from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH
-
 
 # logging_tf.set_verbosity_error()  # to mute useless logging dump
 # logging_ds.set_verbosity_error()
@@ -29,7 +25,9 @@ def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader, DataLoa
     test_samples = config["dataset"]["test_samples"]
 
     _train_loader = prepare_single_loader(config, f"train[:{train_samples}]", tokenizer)
-    _val_loader = prepare_single_loader(config, f"train[{train_samples}:{train_samples + val_samples}]", tokenizer)
+    _val_loader = prepare_single_loader(
+        config, f"train[{train_samples}:{train_samples + val_samples}]", tokenizer
+    )
     _test_loader = prepare_single_loader(config, f"test[:{test_samples}]", tokenizer)
 
     return _train_loader, _val_loader, _test_loader
