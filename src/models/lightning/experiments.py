@@ -7,8 +7,8 @@ import yaml
 from optuna import visualization
 from optuna.integration import PyTorchLightningPruningCallback
 
-from src.models.lightning.model_manager import (DBPediaDataModule,
-                                                LightningText_Net)
+from src.data.make_dataset_lit_wrapper import DBPediaDataModule
+from src.models.lightning.model_wrapper_lit import LightningTextNet
 from src.paths import EXPERIMENTS_PATH, FIGURES_PATH
 
 
@@ -20,10 +20,10 @@ def objective(trial, epochs, config):
     hidden_dims = [
         trial.suggest_discrete_uniform(f"units_layer_{i}", 16, 512, 16) for i in range(layers)
     ]
-    lr = trial.suggest_float("lr", 1e-4, 1)
+    lr = trial.suggest_float("lr", 1e-4, 1e-2)
 
     datamodule = DBPediaDataModule(config)
-    model = LightningText_Net(hidden_dims, dropout, lr, optimizer='Adam')
+    model = LightningTextNet(hidden_dims, dropout, lr, optimizer='Adam')
 
     trainer = pl.Trainer(
         logger=True,

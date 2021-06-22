@@ -1,14 +1,14 @@
 model:
   name: default_model_name
-  layers: [ 64 ]
+  layers: [ 128 ]
   lr: 0.001
   dropout: 0.3
   max_sentence_length: 512
-  epochs: 100
+  epochs: 15
   optimizer: Adam
-  batch_size: 5
+  batch_size: 4
 
 dataset:
-  train_samples: 800
-  val_samples: 100
-  test_samples: 800
+  train_samples: 28
+  val_samples: 28
+  test_samples: 70
