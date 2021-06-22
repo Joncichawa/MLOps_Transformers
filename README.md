@@ -51,7 +51,7 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ```
 - Training
 ```bash
-   python -m src.models.main train --config experiment-base.yml
+   python -m src.models.main train --config experiment-base.yaml
 ```
 - Predict
 ```bash
@@ -71,7 +71,7 @@ Project for the MLOps course at DTU utilizing Transformers library for state-of-
 ```
 - Training
 ```bash
-   python -m src.models.main train --config experiment-base.yml   
+   python -m src.models.main train --config experiment-base.yaml   
 ```
 - Predict
 ```bash
