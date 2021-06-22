@@ -1,14 +1,15 @@
-import optuna
-import yaml
-import torch
 import shutil
 
-from src.models.lightning.model_manager import LightningText_Net, DBPediaDataModule
+import optuna
 import pytorch_lightning as pl
-from src.paths import FIGURES_PATH, EXPERIMENTS_PATH
-
+import torch
+import yaml
 from optuna import visualization
 from optuna.integration import PyTorchLightningPruningCallback
+
+from src.models.lightning.model_manager import (DBPediaDataModule,
+                                                LightningText_Net)
+from src.paths import EXPERIMENTS_PATH, FIGURES_PATH
 
 
 def objective(trial, epochs, config):

@@ -1,10 +1,10 @@
 import argparse
 import logging
-import src.models.lightning.experiments as experiments
 import warnings
 
 import yaml
 
+import src.models.lightning.experiments as experiments
 from src.models.model_manager import Manager
 from src.paths import EXPERIMENTS_PATH
 

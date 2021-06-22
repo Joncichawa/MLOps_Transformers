@@ -1,11 +1,10 @@
 import pytorch_lightning as pl
 import torch
-from src.paths import MODELS_PATH
-
-
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from src.models.distil_bert_classifier import DistillBERTClass
+
 import src.data.make_dataset as mkd
+from src.models.distil_bert_classifier import DistillBERTClass
+from src.paths import MODELS_PATH
 
 
 class DBPediaDataModule(pl.LightningDataModule):
