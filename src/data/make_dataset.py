@@ -1,16 +1,12 @@
-import numpy as np
-from sklearn.model_selection import train_test_split
-from itertools import chain
 from typing import Dict, List, Tuple
 
 import torch
 import yaml
-from datasets import load_dataset, concatenate_datasets
+from datasets import concatenate_datasets, load_dataset
 from torch import Tensor
 from torch.utils.data import DataLoader
 from transformers import DistilBertTokenizer
 
-from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH
 
 
@@ -24,9 +20,11 @@ def prepare_train_loaders(config: dict) -> Tuple[DataLoader, DataLoader, DataLoa
     val_samples = config["dataset"]["val_samples"]
     test_samples = config["dataset"]["test_samples"]
 
-    _train_loader = prepare_single_loader(config, f"train", tokenizer, train_samples, sep=True)
-    _val_loader = prepare_single_loader(config, f"train", tokenizer, val_samples)
-    _test_loader = prepare_single_loader(config, f"test", tokenizer, test_samples)
+    _train_loader = prepare_single_loader(
+        config, "train", tokenizer, train_samples, sep=True
+    )
+    _val_loader = prepare_single_loader(config, "train", tokenizer, val_samples)
+    _test_loader = prepare_single_loader(config, "test", tokenizer, test_samples)
 
     return _train_loader, _val_loader, _test_loader
 
@@ -72,8 +70,13 @@ def prepare_single_loader(config: dict, split: str, tokenizer, sample_count, sep
     extra = 0
     if sep:
         extra = 0.5 * step
-    splits = [f"{split}[{int(extra + step * c)}:{int(extra + step * c + sample_count / 14)}]" for c in classes]
-    datasets = [load_dataset("dbpedia_14", cache_dir=DATA_PATH / "raw", split=s) for s in splits]
+    splits = [
+        f"{split}[{int(extra + step * c)}:{int(extra + step * c + sample_count / 14)}]"
+        for c in classes
+    ]
+    datasets = [
+        load_dataset("dbpedia_14", cache_dir=DATA_PATH / "raw", split=s) for s in splits
+    ]
     dataset = concatenate_datasets(datasets)
 
     dataset = dataset.remove_columns(column_names=["title"])
@@ -87,12 +90,14 @@ def prepare_single_loader(config: dict, split: str, tokenizer, sample_count, sep
             truncation=True,
         ),
         remove_columns=["content"],
-
     )
 
     dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
     loader = DataLoader(
-        dataset, batch_size=config["model"]["batch_size"], shuffle="train" in split, num_workers=2
+        dataset,
+        batch_size=config["model"]["batch_size"],
+        shuffle="train" in split,
+        num_workers=2,
     )
     return loader
 

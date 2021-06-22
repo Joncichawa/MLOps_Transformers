@@ -1,5 +1,5 @@
-import torch
 import pytorch_lightning as pl
+import torch
 
 from src.models.distil_bert_classifier import DistillBERTClass
 

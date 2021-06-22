@@ -1,5 +1,6 @@
 import pytorch_lightning as pl
 import yaml
+
 from src.models.lightning.train_model_lit import train_model
 from src.paths import EXPERIMENTS_PATH
 
