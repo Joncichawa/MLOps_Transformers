@@ -12,12 +12,18 @@ class DistillBERTClass(torch.nn.Module):
         layers = []
         input_features = BERT_OUTPUT
         for dim in config['model']['layers']:
+            dim = int(dim)  # optuna requirement
             layers.append(torch.nn.Linear(input_features, dim))
             layers.append(torch.nn.ReLU())
             layers.append(torch.nn.Dropout(config['model']['dropout']))
             input_features = dim
         layers.append(torch.nn.Linear(input_features, MODEL_OUTPUT))
         self.lin_layers = torch.nn.Sequential(*layers)
+
+    @staticmethod
+    def init_from_args(layers, dropout):
+        config = {'model': {'layers': layers, 'dropout': dropout}}
+        return DistillBERTClass(config)
 
     def forward(self, input_ids, attention_mask):
         output_1 = self.pretrained_bert(input_ids=input_ids, attention_mask=attention_mask)
