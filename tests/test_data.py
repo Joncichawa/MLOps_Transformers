@@ -15,32 +15,17 @@ from src.models.distil_bert_classifier import DistillBERTClass
 from src.paths import DATA_PATH, EXPERIMENTS_PATH, MODELS_PATH, TESTS_PATH
 from src.data.make_dataset import prepare_train_loaders 
 
-
-# def setup_module(module):
-#     print('setup')
-#     # make_dataset.main() check how to do this
-
-# def teardown_module(module):
-#     # todo
-#     print('TEARDOWN')
-
-# def test_dataloader():
-#     config_path = "test-config.yaml"
-#     with open(config_path) as f:
-#         config = yaml.safe_load(f)
-
-
-
-# def test_dummy_false2():
-#     device = "cpu"
-#     config_path = TESTS_PATH / "test-config.yaml"
-#     with open(config_path) as f:
-#         config = yaml.safe_load(f)
+def test_data_shape():
+    config_path = TESTS_PATH / "test-config.yaml"
+    with open(config_path) as f:
+        config = yaml.safe_load(f)
    
-#     train, test = prepare_train_loaders(config)
-#     assert train.shape == 30522
+    train_loader, val_loader, test_loader = prepare_train_loaders(config)
+    # print(train_loader.size)
+    # print(train_loader.dataset['columns'])
+    # assert train_loader.dataset['columns'] == ['attention_mask', 'input_ids', 'label']
+    # assert train_loader.dataset == Dataset({'features': ['attention_mask', 'input_ids', 'label'],
+    # 'num_rows': 14
+    # })
 
-
-def test_dummy_false():
-    with pytest.raises(AssertionError):
-        assert False
+    assert True

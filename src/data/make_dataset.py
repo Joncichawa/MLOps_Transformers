@@ -39,7 +39,7 @@ def predict_loader(texts: List[str], config: dict) -> List[Dict[str, Tensor]]:
             lambda e: tokenizer.encode_plus(
                 e,
                 add_special_tokens=True,
-                max_length=config["data"]["max_sentence_length"],
+                max_length=config["model"]["max_sentence_length"],
                 pad_to_max_length=True,
                 truncation=True,
             ),

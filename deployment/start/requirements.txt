@@ -1,0 +1,7 @@
+azure-functions
+requests
+onnxruntime
+onnx
+torch
+PyYAML
+transformers

@@ -17,7 +17,7 @@ class LightningTextNet(pl.LightningModule):
         self.val_acc = acc.clone()
         self.val_prec = pl.metrics.Precision(num_classes=14).clone()
         self.val_recall = pl.metrics.Recall(num_classes=14).clone()
-        self.train_loss = pl.metrics.Metric()
+        # self.train_loss = pl.metrics.Metric()
 
         self.save_hyperparameters()
 

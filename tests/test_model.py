@@ -29,8 +29,19 @@ def test_model_layers():
     # Test proper dropout value
     assert manager.model.lin_layers[2].p == config['model']['dropout']
 
-def test_dummy_false():
-    with pytest.raises(AssertionError):
-        assert False
+def test_model_trainig():
+    with open(str(TESTS_PATH / "test-config.yaml")) as f:
+        config = yaml.safe_load(f)
 
-# test_model_layers()
+    log_fmt = '[%(asctime)s]\t%(message)s'
+    logging.basicConfig(level=logging.INFO, format=log_fmt, datefmt='%Y-%m-%d %H:%M:%S')
+    logger = logging.getLogger(__name__)
+
+    manager = Manager(config, logger)
+    # Test training loop
+    try:
+        manager.model.train()
+    except Exception:
+        assert False
+    finally:
+        assert True
