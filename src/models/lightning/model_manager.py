@@ -69,7 +69,7 @@ class LightningText_Net(pl.LightningModule):
         ids = batch["input_ids"]
         mask = batch["attention_mask"]
         output = self(ids, mask)
-        pred = output.argmax(dim=1, keepdim=True)
+        pred = output.argmax(dim=1)
         self.test_acc.update(pred, batch["label"])
 
     def test_epoch_end(self, batch):

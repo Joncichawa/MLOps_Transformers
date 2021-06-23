@@ -1,0 +1,14 @@
+dataset:
+    test_samples: 350
+    train_samples: 1400
+    val_samples: 700
+model:
+    batch_size: 5
+    dropout: 0.4675141419553169
+    epochs: 3
+    layers:
+    - 240
+    lr: 0.00818095104811082
+    max_sentence_length: 512
+    name: firstest
+    optimizer: Adam

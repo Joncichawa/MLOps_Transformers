@@ -23,11 +23,7 @@ def objective(trial, epochs, config):
     lr = trial.suggest_float("lr", 1e-4, 1e-2)
 
     datamodule = DBPediaDataModule(config)
-<<<<<<< Updated upstream
     model = LightningTextNet(hidden_dims, dropout, lr, optimizer='Adam')
-=======
-    model = LightningText_Net(hidden_dims, dropout, lr, optimizer='Adam', freeze_bert=True)
->>>>>>> Stashed changes
 
     trainer = pl.Trainer(
         logger=True,
@@ -51,14 +47,14 @@ def objective(trial, epochs, config):
 def start(name, epochs, time, n_trials):
     config = {
         'dataset': {
-            'train_samples': 224000,
-            'val_samples': 56000,
-            'test_samples': 35000
+            'train_samples': 1400,
+            'val_samples': 700,
+            'test_samples': 350
         },
         'model': {
             'name': name,
             'max_sentence_length': 512,
-            'optimization': 'Adam',
+            'optimizer': 'Adam',
             'epochs': int(epochs),
             'batch_size': 5,
             'layers': None,

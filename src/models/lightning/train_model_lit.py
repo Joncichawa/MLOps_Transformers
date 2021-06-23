@@ -17,17 +17,19 @@ def train_model(config: dict):
     )
     datamodule = DBPediaDataModule(config)
     checkpoint = ModelCheckpoint(
-        monitor='val/acc',
+        monitor='val_acc_epoch',
         dirpath=str(MODELS_PATH),
         filename=f"{config['model']['name']}",
         save_top_k=1
     )
-    early_stopping = EarlyStopping(monitor='val/acc')
-    wandb_logger = WandbLogger()
+    early_stopping = EarlyStopping(monitor='val_acc_epoch')
+    logger = WandbLogger(name=config['model']['name'], project='mlops_distilbert')
+    epochs = int(config['model']['epochs'])
     trainer = pl.Trainer(
         gpus=-1 if torch.cuda.is_available() else None,
-        logger=wandb_logger,
-        max_epochs=int(config['model']['epochs']),
+        logger=logger,
+        min_epochs=epochs // 2,
+        max_epochs=epochs,
         callbacks=[early_stopping, checkpoint]
     )
     trainer.fit(model, datamodule=datamodule)
