@@ -46,7 +46,6 @@ class LightningTextNet(pl.LightningModule):
         loss = criterion(output, batch["label"])
         output_ps = torch.exp(output)
         pred = output_ps.argmax(dim=1)
-
         self.log('val_loss_step', loss)
         self.log('val_acc_step', self.val_acc(pred, batch["label"]))
         self.log('val_recall_step', self.val_recall(pred, batch["label"]))
