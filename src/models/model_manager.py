@@ -2,6 +2,7 @@ import torch
 
 import src.data.make_dataset as mkd
 from src.models.distil_bert_classifier import DistillBERTClass
+from src.models.lightning.train_model_lit import train_model
 from src.paths import MODELS_PATH
 
 
@@ -32,9 +33,7 @@ class Manager:
         if self.loaded:
             return None
         self.logger.info('Loading training dataset')
-        # TODO: right now we only have train and test set.
-        #       It would be useful to make a train set sample for validation.
-        self.train, self.valid = mkd.prepare_train_loaders(self.config)
+        self.train, self.valid, self.test = mkd.prepare_train_loaders(self.config)
 
     def _load_external_dataset(self, data):
         if self.loaded:
@@ -49,6 +48,7 @@ class Manager:
             raise Exception('Invalid optimizer name in experiment config file!')
 
     def train(self):
+        train_model()
         self._load_internal_dataset()
         optimizer = self._get_optimizer()
         criterion = torch.nn.NLLLoss()
