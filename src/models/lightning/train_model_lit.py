@@ -17,12 +17,12 @@ def train_model(config: dict):
     )
     datamodule = DBPediaDataModule(config)
     checkpoint = ModelCheckpoint(
-        monitor='val/acc',
+        monitor='val_acc',
         dirpath=str(MODELS_PATH),
         filename=f"{config['model']['name']}",
         save_top_k=1
     )
-    early_stopping = EarlyStopping(monitor='val/acc')
+    early_stopping = EarlyStopping(monitor='val_acc')
     wandb_logger = WandbLogger()
     trainer = pl.Trainer(
         gpus=-1 if torch.cuda.is_available() else None,

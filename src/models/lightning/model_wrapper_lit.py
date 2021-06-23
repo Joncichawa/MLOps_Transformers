@@ -12,12 +12,14 @@ class LightningTextNet(pl.LightningModule):
             self.model.freeze_pretrained_params()
         self.optimizer = optimizer
         self.lr = lr
+
         acc = pl.metrics.Accuracy()
+        prec = pl.metrics.Precision(num_classes=14, average='macro')
+        recall = pl.metrics.Recall(num_classes=14, average='macro')
         self.test_acc = acc.clone()
         self.val_acc = acc.clone()
-        self.val_prec = pl.metrics.Precision(num_classes=14).clone()
-        self.val_recall = pl.metrics.Recall(num_classes=14).clone()
-        self.train_loss = pl.metrics.Metric()
+        self.val_prec = prec.clone()
+        self.val_recall = recall.clone()
 
         self.save_hyperparameters()
 
@@ -31,7 +33,7 @@ class LightningTextNet(pl.LightningModule):
         output = self(ids, mask)
         criterion = torch.nn.NLLLoss()
         loss = criterion(output, batch["label"])
-        self.log('train/loss', loss)
+        self.log('train_loss', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -44,7 +46,7 @@ class LightningTextNet(pl.LightningModule):
         output_ps = torch.exp(output)
         pred = output_ps.argmax(dim=1)
 
-        self.log('val/loss', loss)
+        self.log('val_loss', loss)
         self.val_acc(pred, batch["label"])
         self.val_recall(pred, batch["label"])
         self.val_prec(pred, batch["label"])
@@ -53,9 +55,9 @@ class LightningTextNet(pl.LightningModule):
         prec = self.val_prec.compute()
         recall = self.val_recall.compute()
         accuracy = self.val_acc.compute()
-        self.log("val/acc", accuracy)
-        self.log("val/recall", recall)
-        self.log("val/prec", prec)
+        self.log("val_acc", accuracy)
+        self.log("val_recall", recall)
+        self.log("val_prec", prec)
 
     def test_step(self, batch, batch_idx):
         self.eval()
@@ -76,5 +78,4 @@ class LightningTextNet(pl.LightningModule):
         else:
             raise Exception('Invalid optimizer name in experiment config file!')
 
-        # scheduler = {'monitor': 'val_acc'}
-        return [optimizer]
+        return optimizer
