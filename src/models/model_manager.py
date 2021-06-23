@@ -67,10 +67,6 @@ class Manager:
                 output = self.model(ids, mask)
                 output_ps = torch.exp(output)
                 # Backward
-                print(ids.shape)
-                print(mask.shape)
-                print(output.shape)
-                print(labels.shape)
                 loss = criterion(output, labels)
                 loss.backward()
                 optimizer.step()
