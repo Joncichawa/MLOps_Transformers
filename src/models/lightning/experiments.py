@@ -47,14 +47,14 @@ def objective(trial, epochs, config):
 def start(name, epochs, time, n_trials):
     config = {
         'dataset': {
-            'train_samples': 800,
-            'val_samples': 100,
-            'test_samples': 800
+            'train_samples': 1400,
+            'val_samples': 700,
+            'test_samples': 350
         },
         'model': {
             'name': name,
             'max_sentence_length': 512,
-            'optimization': 'Adam',
+            'optimizer': 'Adam',
             'epochs': int(epochs),
             'batch_size': 5,
             'layers': None,

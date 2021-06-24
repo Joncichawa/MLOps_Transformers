@@ -4,6 +4,9 @@
 models
 !src/models
 lightning_logs/
+tb_logs/
+wandb/
+reports/figures
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,14 @@
+dataset:
+    test_samples: 56000
+    train_samples: 56000
+    val_samples: 14000
+model:
+    batch_size: 5
+    dropout: 0.2692561542857144
+    epochs: 10
+    layers:
+    - 208
+    lr: 0.0013267472634793005
+    max_sentence_length: 512
+    name: hypersearch7
+    optimizer: Adam
