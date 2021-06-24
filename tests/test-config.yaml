@@ -1,0 +1,14 @@
+model:
+  name: test_model_name
+  layers: [ 128 ]
+  lr: 0.001
+  dropout: 0.3
+  max_sentence_length: 512
+  epochs: 1
+  optimizer: Adam
+  batch_size: 4
+
+dataset:
+  train_samples: 20
+  val_samples: 20
+  test_samples: 20
