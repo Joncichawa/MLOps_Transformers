@@ -5,3 +5,4 @@ onnx
 torch
 PyYAML
 transformers
+numpy==1.20.0
