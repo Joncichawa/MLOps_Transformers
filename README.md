@@ -91,3 +91,14 @@ black src --check --diff
 # isort linting
 isort src --check
 ```
+
+### Deploy to Azure
+
+(not a final version)
+
+az group create --name MLOps_App  --location northeurope
+az storage account create --name MLOps_Storage -l northeurope --sku Standard_LRS -g MLOps_App
+az functionapp create --name MLOps_App -g MLOps_App --consumption-plan-location northeurope --storage-account mlopsdeployment --runtime python --runtime-version 3.7 --functions-version 3 --disable-app-insights --os-type Linux
+
+func azure functionapp publish MLOPs_App --no-build
+
